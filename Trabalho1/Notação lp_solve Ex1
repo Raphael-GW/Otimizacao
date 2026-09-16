@@ -12,3 +12,9 @@ C[0]*P[0] >= C1     P[0] = H[0][1] *V[0]
 P[0] <= H[0][0]
 C[1]*P[1] + C[(h-1)+1]*P[(h-1)+1] >= C2      P[1] = H[1][1] * V[1]      P[(h-1)+1] = C[0]*P[0] - C1
 P[1] <= H[1][0]
+
+
+Sendo V o vetor da vazão de cada Hidro
+H matriz hx3 com info de cada Hidro -> M F C
+P vetor com a produção de cada componente
+C custo de cada aresta
