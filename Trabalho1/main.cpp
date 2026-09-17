@@ -37,21 +37,23 @@ int main () {
     for (i = 0; i < h; i++) {        
 
         cin >> Hidros[i].n ;
-        Hidros[i].a = (Cabo *)malloc( sizeof(Cabo) * n); 
-        for (j = 0; j < n; j++) {
+        Hidros[i].a = (Cabo *)malloc( sizeof(Cabo) * Hidros[i].n); 
+        for (j = 0; j < Hidros[i].n; j++) {
             cin >> Hidros[i].a[j].t >> Hidros[i].a[j].w >> Hidros[i].a[j].c ;  
         }
     }
     for (i = 0; i < l; i++) {
 
         cin >> Centrais[i].n ;
-        Centrais[i].a = (Cabo *)malloc( sizeof(Cabo) * n); 
-        for (j = 0; j < n; j++) {
+        Centrais[i].a = (Cabo *)malloc( sizeof(Cabo) * Centrais[i].n); 
+        for (j = 0; j < Centrais[i].n; j++) {
             cin >> Centrais[i].a[j].t >> Centrais[i].a[j].w >> Centrais[i].a[j].c ;  
         }
     }
 
     /*Saida*/
+
+    /*funcao minimizadora*/
     cout << "min : " ;
     /*custo das hidreletricas*/
     for(i = 0; i < h; i++) {
@@ -72,6 +74,10 @@ int main () {
         }
         cout << Centrais[i].a[j].c << "y" << i +1 +h ;
     }
+    cout << endl ;
+
+    
+
 
 
 
