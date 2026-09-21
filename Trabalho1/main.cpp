@@ -22,4 +22,6 @@ int main () {
     /*restricoes*/
     print_restrictions(h, l, r, Hidros, Centrais);
 
+    destroi_structs (h, l, Hidros, Centrais);
+
 }

@@ -149,3 +149,22 @@ void print_restrictions(long long h, long long l, long long r, HidroEletrica *Hi
         cout << " >= " << Centrais[central].d << ";\n";
     }
 }
+
+void destroi_structs (int h, int l, HidroEletrica *Hidros, Central *Centrais){
+	if (!Hidros && !Centrais)
+		return ;
+	for (int i = 0; i < h; i++){
+		for (int j = 0; j < Hidros[i].n; j++){
+			free (&Hidros[i].a[j]);
+		}
+	}
+
+	for (int i = 0; i < l; i++){
+		for (int j = 0; j < Centrais[i].n; i++)
+			free (&Centrais[i].a[j]);
+	}
+	free (Hidros);
+	free (Centrais);
+}
+
+					

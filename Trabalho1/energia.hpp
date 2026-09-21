@@ -20,3 +20,4 @@ struct Central{
 void scan_input(long long h, long long l, HidroEletrica *&Hidros, Central *&Centrais) ;
 void print_min_funcion(long long h, long long l, HidroEletrica *Hidros, Central *Centrais) ;
 void print_restrictions(long long h, long long l, long long r, HidroEletrica *Hidros, Central *Centrais) ;
+void destroi_structs (int h, int l, HidroEletrica *Hidros, Central *Centrais);
