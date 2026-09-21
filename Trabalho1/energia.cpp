@@ -151,20 +151,22 @@ void print_restrictions(long long h, long long l, long long r, HidroEletrica *Hi
 }
 
 void destroi_structs (int h, int l, HidroEletrica *Hidros, Central *Centrais){
-	if (!Hidros && !Centrais)
-		return ;
-	for (int i = 0; i < h; i++){
-		for (int j = 0; j < Hidros[i].n; j++){
-			free (&Hidros[i].a[j]);
+	if (Hidros){	
+		for (int i = 0; i < h; i++){
+			if (Hidros[i].a)
+				free (Hidros[i].a);
 		}
+		free (Hidros);
 	}
-
-	for (int i = 0; i < l; i++){
-		for (int j = 0; j < Centrais[i].n; i++)
-			free (&Centrais[i].a[j]);
+	
+	if (Centrais){
+		for (int i = 0; i < l; i++){
+			if (Centrais[i].a)
+				free (Centrais[i].a);
+		}
+		free (Centrais);
 	}
-	free (Hidros);
-	free (Centrais);
+	
 }
 
 					
