@@ -13,13 +13,14 @@
  * Entrada/saida pelo stdin/stdout, conforme especificacao do trabalho.
  * Relatorio (numero de nos e tempo gasto) e impresso em stderr.
  */
+
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
 #include "envio.h"
-#define _POSIX_C_SOURCE 200809L
 
 int main(int argc, char **argv) {
     int opt;
