@@ -28,6 +28,8 @@ typedef struct {
     int *predLista;
     int itensGrandes;  /* itens com peso > C/2: nunca dividem viagem */
     int limiteEstatico;
+    long long *sufSoma; /* sufSoma[p]: peso dos itens ordem[p..n-1] */
+    long long *sufMin;  /* sufMin[p]: menor peso entre ordem[p..n-1] */
 } Busca;
 
 /* Opcoes da busca: ambas ficam ligadas por padrao. */

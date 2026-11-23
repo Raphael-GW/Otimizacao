@@ -230,8 +230,19 @@ int preparaLimitante(Busca *busca) {
     busca->inicio = calloc((size_t)n + 1, sizeof(int));
     busca->predInicio = calloc((size_t)n + 2, sizeof(int));
     busca->predLista = calloc((size_t)m + 1, sizeof(int));
-    if (!busca->cauda || !busca->inicio || !busca->predInicio || !busca->predLista)
+    busca->sufSoma = calloc((size_t)n + 1, sizeof(long long));
+    busca->sufMin = calloc((size_t)n + 1, sizeof(long long));
+    if (!busca->cauda || !busca->inicio || !busca->predInicio || !busca->predLista ||
+        !busca->sufSoma || !busca->sufMin)
         return 0;
+
+    /* somas e minimos de sufixo na ordem de busca (limitante de capacidade) */
+    busca->sufMin[n] = ins->c + 1;
+    for (int p = n - 1; p >= 0; p--) {
+        long long w = ins->pesos[busca->ordem[p]];
+        busca->sufSoma[p] = busca->sufSoma[p + 1] + w;
+        busca->sufMin[p] = w < busca->sufMin[p + 1] ? w : busca->sufMin[p + 1];
+    }
 
     for (int i = 0; i < m; i++)
         busca->predInicio[ins->restricoes[i].b + 1]++;
@@ -274,6 +285,8 @@ void liberaLimitante(Busca *busca) {
     free(busca->inicio);
     free(busca->predInicio);
     free(busca->predLista);
+    free(busca->sufSoma);
+    free(busca->sufMin);
 }
 
 /* Limitante inferior no no (pos itens ja alocados em k viagens):
@@ -281,12 +294,27 @@ void liberaLimitante(Busca *busca) {
  *  2) itens com peso > C/2 ocupam viagens distintas;
  *  3) precedencia: cada item i so pode ir numa viagem >= inicio[i] (viagem
  *     fixa se ja alocado; senao 1 + maior inicio dos predecessores) e ainda
- *     precisa de cauda[i]-1 viagens depois dele. */
+ *     precisa de cauda[i]-1 viagens depois dele;
+ *  4) capacidade: sobras das viagens abertas que ainda comportam algum
+ *     item nao alocado; o resto do peso exige viagens novas. */
 long long limitanteMelhor(Busca *busca, int pos, int k) {
     const Instancia *ins = busca->instancia;
     long long lim = limitanteDada(ins, k);
     if (busca->limiteEstatico > lim)
         lim = busca->limiteEstatico;
+
+    if (pos < ins->n) {
+        long long utilizavel = 0;
+        for (int j = 1; j <= k; j++)
+            if (busca->capacidadeRestante[j] >= busca->sufMin[pos])
+                utilizavel += busca->capacidadeRestante[j];
+        long long excesso = busca->sufSoma[pos] - utilizavel;
+        if (excesso > 0) {
+            long long b = k + (excesso + ins->c - 1) / ins->c;
+            if (b > lim)
+                lim = b;
+        }
+    }
 
     for (int p = 0; p < ins->n; p++) {
         int item = busca->ordem[p];
