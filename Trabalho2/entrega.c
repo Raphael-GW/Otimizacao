@@ -221,12 +221,98 @@ static int solucaoViavel(const Busca *busca, int k) {
     return 1;
 }
 
+/* Prepara cauda, predecessores e o limite estatico (itens grandes, cadeia). */
+int preparaLimitante(Busca *busca) {
+    const Instancia *ins = busca->instancia;
+    int n = ins->n, m = ins->m;
+    busca->cauda = calloc((size_t)n + 1, sizeof(int));
+    busca->inicio = calloc((size_t)n + 1, sizeof(int));
+    busca->predInicio = calloc((size_t)n + 2, sizeof(int));
+    busca->predLista = calloc((size_t)m + 1, sizeof(int));
+    if (!busca->cauda || !busca->inicio || !busca->predInicio || !busca->predLista)
+        return 0;
+
+    for (int i = 0; i < m; i++)
+        busca->predInicio[ins->restricoes[i].b + 1]++;
+    for (int i = 1; i <= n + 1; i++)
+        busca->predInicio[i] += busca->predInicio[i - 1];
+    int *prox = malloc(((size_t)n + 1) * sizeof(int));
+    if (!prox)
+        return 0;
+    for (int i = 0; i <= n; i++)
+        prox[i] = busca->predInicio[i];
+    for (int i = 0; i < m; i++)
+        busca->predLista[prox[ins->restricoes[i].b]++] = ins->restricoes[i].a;
+    free(prox);
+
+    /* cauda[i] = 1 + maior cauda entre os sucessores (ordem topologica reversa) */
+    for (int p = n - 1; p >= 0; p--) {
+        int item = busca->ordem[p];
+        int melhor = 0;
+        for (int i = 0; i < m; i++)
+            if (ins->restricoes[i].a == item && busca->cauda[ins->restricoes[i].b] > melhor)
+                melhor = busca->cauda[ins->restricoes[i].b];
+        busca->cauda[item] = melhor + 1;
+    }
+
+    busca->itensGrandes = 0;
+    busca->limiteEstatico = 0;
+    for (int i = 1; i <= n; i++) {
+        if (2 * ins->pesos[i] > ins->c)
+            busca->itensGrandes++;
+        if (busca->cauda[i] > busca->limiteEstatico)
+            busca->limiteEstatico = busca->cauda[i];
+    }
+    if (busca->itensGrandes > busca->limiteEstatico)
+        busca->limiteEstatico = busca->itensGrandes;
+    return 1;
+}
+
+void liberaLimitante(Busca *busca) {
+    free(busca->cauda);
+    free(busca->inicio);
+    free(busca->predInicio);
+    free(busca->predLista);
+}
+
+/* Limitante inferior no no (pos itens ja alocados em k viagens):
+ *  1) limitanteDada: max(k, ceil(soma/C));
+ *  2) itens com peso > C/2 ocupam viagens distintas;
+ *  3) precedencia: cada item i so pode ir numa viagem >= inicio[i] (viagem
+ *     fixa se ja alocado; senao 1 + maior inicio dos predecessores) e ainda
+ *     precisa de cauda[i]-1 viagens depois dele. */
+long long limitanteMelhor(Busca *busca, int pos, int k) {
+    const Instancia *ins = busca->instancia;
+    long long lim = limitanteDada(ins, k);
+    if (busca->limiteEstatico > lim)
+        lim = busca->limiteEstatico;
+
+    for (int p = 0; p < ins->n; p++) {
+        int item = busca->ordem[p];
+        int ini;
+        if (p < pos) {
+            ini = busca->viagem[item];
+        } else {
+            ini = 1;
+            for (int j = busca->predInicio[item]; j < busca->predInicio[item + 1]; j++) {
+                int v = busca->inicio[busca->predLista[j]] + 1;
+                if (v > ini)
+                    ini = v;
+            }
+        }
+        busca->inicio[item] = ini;
+        if (ini + busca->cauda[item] - 1 > lim)
+            lim = ini + busca->cauda[item] - 1;
+    }
+    return lim;
+}
+
 void ramifica(Busca *busca, int pos, int k) {
     const Instancia *instancia = busca->instancia;
     nosExplorados++;
 
     if (corteOtimalidade &&
-        limitanteDada(instancia, k) >= busca->melhorK)
+        limitanteMelhor(busca, pos, k) >= busca->melhorK)
         return;
 
     if (pos == instancia->n) {
@@ -308,8 +394,20 @@ int resolveProblema(const Instancia *instancia) {
         return 0;
     }
 
+    if (!preparaLimitante(&busca)) {
+        liberaLimitante(&busca);
+        free(busca.ordem);
+        free(busca.viagem);
+        free(busca.melhorViagem);
+        free(busca.capacidadeRestante);
+        fprintf(stderr, "erro: memoria insuficiente para o limitante\n");
+        return 0;
+    }
+
     ramifica(&busca, 0, 0);
     imprimeSaida(busca.melhorK, busca.melhorViagem, instancia->n);
+
+    liberaLimitante(&busca);
 
     free(busca.ordem);
     free(busca.viagem);

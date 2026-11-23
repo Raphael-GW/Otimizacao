@@ -21,6 +21,13 @@ typedef struct {
     int *melhorViagem;
     long long *capacidadeRestante;
     int melhorK;
+    /* dados do limitante melhorado */
+    int *cauda;        /* maior cadeia de precedencia comecando no item */
+    int *inicio;       /* auxiliar: menor viagem possivel de cada item */
+    int *predInicio;   /* predecessores de i: predLista[predInicio[i]..predInicio[i+1]-1] */
+    int *predLista;
+    int itensGrandes;  /* itens com peso > C/2: nunca dividem viagem */
+    int limiteEstatico;
 } Busca;
 
 /* Opcoes da busca: ambas ficam ligadas por padrao. */
@@ -36,6 +43,12 @@ void liberaInstancia(Instancia *instancia);
 
 /* Bound do professor: maximo entre |P| e ceil(sum(pesos) / C). */
 long long limitanteDada(const Instancia *instancia, int viagensParciais);
+
+/* Limitante melhorado (>= limitanteDada). Exige preparaLimitante. Considera
+ * precedencias, itens grandes e as viagens ja fixadas em busca->viagem. */
+int preparaLimitante(Busca *busca);
+void liberaLimitante(Busca *busca);
+long long limitanteMelhor(Busca *busca, int pos, int k);
 
 /* Imprime a solucao no formato exigido pelo enunciado. */
 void imprimeSaida(int k, const int *viagem, int n);

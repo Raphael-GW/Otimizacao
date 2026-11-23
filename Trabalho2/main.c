@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 
     
     fprintf(stderr, "nos explorados: %lld\n", nosExplorados);
-    fprintf(stderr, "tempo de execucao: %ld segundos\n", (long)tempo);
+    //fprintf(stderr, "tempo de execucao: %ld segundos\n", (long)tempo);
 
     liberaInstancia(&instancia);
     return 0;
