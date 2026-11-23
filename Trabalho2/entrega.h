@@ -33,6 +33,7 @@ typedef struct {
 /* Opcoes da busca: ambas ficam ligadas por padrao. */
 extern int corteViabilidade;
 extern int corteOtimalidade;
+extern int limitanteProf;
 extern long long nosExplorados;
 
 /* Le uma instancia de stdin. Retorna 1 em caso de sucesso e 0 em erro. */

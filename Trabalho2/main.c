@@ -15,7 +15,9 @@ int main(int argc, char **argv) {
             corteViabilidade = 0;
         } else if (strcmp(argv[i], "-o") == 0) {
             corteOtimalidade = 0;
-        } else {
+        } else if (strcmp (argv[i], "-a") == 0){ 
+            limitanteProf = 1;
+        }else {
             imprimeUso(argv[0]);
             return EXIT_FAILURE;
         }

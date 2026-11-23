@@ -5,6 +5,7 @@
 
 int corteViabilidade = 1;
 int corteOtimalidade = 1;
+int limitanteProf = 0;
 long long nosExplorados = 0;
 
 int lerEntrada(Instancia *instancia) {
@@ -311,9 +312,16 @@ void ramifica(Busca *busca, int pos, int k) {
     const Instancia *instancia = busca->instancia;
     nosExplorados++;
 
-    if (corteOtimalidade &&
-        limitanteMelhor(busca, pos, k) >= busca->melhorK)
-        return;
+    if (corteOtimalidade){
+        if (!limitanteProf){
+            if (limitanteMelhor(busca, pos, k) >= busca->melhorK)
+                return;
+        }
+        else{
+            if (limitanteDada (instancia, k) >= busca->melhorK)
+                return;
+        }
+    }
 
     if (pos == instancia->n) {
         if ((!corteViabilidade && solucaoViavel(busca, k)) ||
